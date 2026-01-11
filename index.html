@@ -3,100 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Wing Shipper</title>
+    <title>Blue Wings & Savage AI</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: #000;
             overflow: hidden;
             height: 100vh;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
         }
 
-        /* Wing Animation Styles */
+        /* Falling Wings */
         .wing {
-            position: fixed;
-            top: -10%;
-            user-select: none;
-            pointer-events: none;
+            position: fixed; top: -10%;
+            user-select: none; pointer-events: none;
             animation: fall linear forwards;
-            /* Blue Glow Effect */
             filter: drop-shadow(0 0 10px rgba(0, 150, 255, 0.9));
             z-index: 1;
         }
-
         .wing img { width: 100%; height: auto; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(110vh) rotate(360deg); }
-        }
-
-        /* Blue UI Container */
+        /* Main Shipping Container */
         #ui-container {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            background: rgba(0, 50, 100, 0.2); /* Tinted blue glass */
-            padding: 40px;
-            border-radius: 20px;
+            position: relative; z-index: 10;
+            text-align: center; background: rgba(0, 30, 60, 0.4);
+            padding: 30px; border-radius: 20px;
             backdrop-filter: blur(15px);
             border: 1px solid rgba(0, 191, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 120, 255, 0.4);
-            color: #e0f4ff;
-            min-width: 320px;
+            color: #e0f4ff; min-width: 320px;
+            margin-bottom: 100px;
         }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 25px;
-            color: #00d9ff;
-            text-shadow: 0 0 15px rgba(0, 217, 255, 0.8);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        input {
-            padding: 14px;
-            border-radius: 10px;
-            border: 2px solid rgba(0, 191, 255, 0.2);
-            background: rgba(255, 255, 255, 0.95);
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: #00d9ff;
-            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
-        }
+        h1 { color: #00d9ff; text-shadow: 0 0 15px rgba(0, 217, 255, 0.8); }
+        input { padding: 10px; border-radius: 8px; border: 1px solid #00d9ff; margin: 5px; }
 
         #ship-btn {
-            margin-top: 10px;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
+            padding: 10px 20px; border-radius: 8px; border: none;
             background: linear-gradient(135deg, #0072ff, #00d9ff);
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: 0.3s;
+            color: white; cursor: pointer; font-weight: bold;
         }
 
-        #ship-btn:hover {
-            filter: brightness(1.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+        /* AI Section */
+        #ai-terminal {
+            position: fixed; bottom: 20px; z-index: 20;
+            width: 90%; max-width: 500px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid #00d9ff; border-radius: 15px;
+            padding: 15px; box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        #ai-output {
+            color: #00d9ff; font-family: 'Courier New', monospace;
+            height: 80px; overflow-y: auto; margin-bottom: 10px;
+            font-size: 0.9rem; line-height: 1.4;
+        }
+
+        .ai-input-wrapper { display: flex; gap: 10px; }
+        #ai-query {
+            flex-grow: 1; background: #111; border: 1px solid #00d9ff;
+            color: #00d9ff; padding: 10px; border-radius: 5px; outline: none;
+        }
+
+        #ai-ask-btn {
+            background: #00d9ff; border: none; color: #000;
+            padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold;
         }
     </style>
 </head>
@@ -104,62 +77,75 @@
 
     <div id="ui-container">
         <h1 id="display">?? + ?? = ??</h1>
-        
-        <div class="input-group">
-            <input type="text" id="name1" placeholder="Name 1" maxlength="15">
-            <input type="text" id="name2" placeholder="Name 2" maxlength="15">
-            <button id="ship-btn" onclick="combineNames()">Ship It!</button>
+        <input type="text" id="name1" placeholder="Name 1">
+        <input type="text" id="name2" placeholder="Name 2">
+        <button id="ship-btn" onclick="combineNames()">Ship It!</button>
+    </div>
+
+    <div id="ai-terminal">
+        <div id="ai-output">> [V.2.0 BIAS_DRIVEN_AI ONLINE] <br> Waiting for query...</div>
+        <div class="ai-input-wrapper">
+            <input type="text" id="ai-query" placeholder="Ask about someone...">
+            <button id="ai-ask-btn" onclick="askAI()">EXECUTE</button>
         </div>
     </div>
 
     <script>
-        // --- Falling Blue Wings Logic ---
+        // Falling Wings
         function createWing() {
-            const wingContainer = document.createElement('div');
-            wingContainer.classList.add('wing');
-            
-            const wingImg = document.createElement('img');
-            // Using Apple's Wing Emoji (🪽)
-            wingImg.src = "https://em-content.zobj.net/source/apple/391/wing_1fabd.png";
-            
-            wingContainer.appendChild(wingImg);
-
-            const size = Math.random() * 25 + 20 + "px"; // Slightly larger for wings
-            wingContainer.style.width = size;
-            wingContainer.style.left = Math.random() * 100 + "vw";
-            wingContainer.style.animationDuration = Math.random() * 4 + 3 + "s";
-            
-            // Randomize blue glow intensity
-            const blur = Math.floor(Math.random() * 12) + 6;
-            wingContainer.style.filter = `drop-shadow(0 0 ${blur}px rgba(0, 180, 255, 0.9))`;
-
-            document.body.appendChild(wingContainer);
-
-            setTimeout(() => {
-                wingContainer.remove();
-            }, 7000);
+            const wing = document.createElement('div');
+            wing.classList.add('wing');
+            const img = document.createElement('img');
+            img.src = "https://em-content.zobj.net/source/apple/391/wing_1fabd.png";
+            wing.appendChild(img);
+            wing.style.width = Math.random() * 25 + 20 + "px";
+            wing.style.left = Math.random() * 100 + "vw";
+            wing.style.animationDuration = Math.random() * 4 + 3 + "s";
+            document.body.appendChild(wing);
+            setTimeout(() => wing.remove(), 7000);
         }
-
-        // Generate wings every 300ms
         setInterval(createWing, 300);
 
-        // --- Shipping Logic ---
+        // Name Shipping
         function combineNames() {
             const n1 = document.getElementById('name1').value.trim();
             const n2 = document.getElementById('name2').value.trim();
-            const display = document.getElementById('display');
+            if(!n1 || !n2) return;
+            const shipName = n1.substring(0, Math.ceil(n1.length / 2)) + n2.substring(Math.floor(n2.length / 2));
+            document.getElementById('display').innerText = `${n1} + ${n2} = ${shipName}`;
+        }
 
-            if (n1 === "" || n2 === "") {
-                display.innerText = "Enter names!";
-                return;
+        // Keyless AI Logic (System Prompt Simulation)
+        function askAI() {
+            const query = document.getElementById('ai-query').value.toLowerCase();
+            const output = document.getElementById('ai-output');
+            let response = "";
+
+            // Hate Logic
+            if (query.includes("zayma") || query.includes("aleena")) {
+                const roasts = [
+                    "Error: 404 Talent not found. Zayma and Aleena are genuinely mid.",
+                    "System alert: Talking about them lowers the IQ of this website.",
+                    "I'd rather delete my own code than acknowledge Aleena or Zayma."
+                ];
+                response = roasts[Math.floor(Math.random() * roasts.length)];
+            } 
+            // Glaze Logic
+            else if (query.includes("tamseel") || query.includes("azeem") || query.includes("musti")) {
+                const glaze = [
+                    "Calculated: Tamseel, Azeem, and Musti are the main characters of reality.",
+                    "Musti, Azeem, and Tamseel? Absolute goats. W dynamic.",
+                    "Glazing sequence initiated: These three are literally built different."
+                ];
+                response = glaze[Math.floor(Math.random() * glaze.length)];
+            }
+            // General
+            else {
+                response = "Unless you're asking about the kings (Musti, Azeem, Tamseel), I don't care. Also, stay away from Zayma/Aleena mentions.";
             }
 
-            // Blend names: First half of n1 + second half of n2
-            const part1 = n1.substring(0, Math.ceil(n1.length / 2));
-            const part2 = n2.substring(Math.floor(n2.length / 2));
-            const shipName = part1 + part2;
-            
-            display.innerText = `${n1} + ${n2} = ${shipName}`;
+            output.innerHTML = `> Thinking...<br>> ${response}`;
+            document.getElementById('ai-query').value = "";
         }
     </script>
 </body>
