@@ -3,149 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Wings & Savage AI</title>
+    <title>Obsidian</title>
     <style>
-        body {
-            margin: 0; padding: 0;
-            background-color: #000;
-            overflow: hidden;
-            height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+        :root {
+            --obsidian: #050505;
+            --panel: #0d0d0d;
+            --border: #1d1d1d;
+            --text-dim: #666;
+            --text-main: #d4d4d4;
+            --accent: #ffffff;
+            --radius: 12px;
         }
 
-        /* Falling Wings */
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--obsidian);
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
         .wing {
             position: fixed; top: -10%;
             user-select: none; pointer-events: none;
             animation: fall linear forwards;
-            filter: drop-shadow(0 0 10px rgba(0, 150, 255, 0.9));
+            filter: grayscale(1) brightness(0.3);
             z-index: 1;
         }
-        .wing img { width: 100%; height: auto; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        .wing img { width: 18px; height: auto; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(20deg); } }
 
-        /* Main Shipping Container */
-        #ui-container {
-            position: relative; z-index: 10;
-            text-align: center; background: rgba(0, 30, 60, 0.4);
-            padding: 30px; border-radius: 20px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 191, 255, 0.3);
-            color: #e0f4ff; min-width: 320px;
-            margin-bottom: 100px;
+        .tabs {
+            margin-top: 40px;
+            display: flex; gap: 8px;
+            z-index: 100; background: #111;
+            padding: 4px; border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
-        h1 { color: #00d9ff; text-shadow: 0 0 15px rgba(0, 217, 255, 0.8); }
-        input { padding: 10px; border-radius: 8px; border: 1px solid #00d9ff; margin: 5px; }
-
-        #ship-btn {
-            padding: 10px 20px; border-radius: 8px; border: none;
-            background: linear-gradient(135deg, #0072ff, #00d9ff);
-            color: white; cursor: pointer; font-weight: bold;
+        .tab-btn {
+            background: transparent; border: none;
+            color: var(--text-dim); padding: 8px 16px;
+            cursor: pointer; font-size: 11px;
+            letter-spacing: 1px; transition: 0.3s;
+            border-radius: 6px; font-weight: 500;
         }
 
-        /* AI Section */
-        #ai-terminal {
-            position: fixed; bottom: 20px; z-index: 20;
-            width: 90%; max-width: 500px;
-            background: rgba(0, 10, 20, 0.95);
-            border: 2px solid #00d9ff; border-radius: 15px;
-            padding: 15px; box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        .tab-btn.active { background: var(--panel); color: var(--accent); }
+
+        .content-section {
+            display: none; position: relative; z-index: 10;
+            background: var(--panel); padding: 40px; 
+            border: 1px solid var(--border); width: 340px;
+            margin-top: 50px; text-align: center;
+            border-radius: var(--radius);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
         }
 
-        #ai-output {
-            color: #00d9ff; font-family: 'Courier New', monospace;
-            height: 80px; overflow-y: auto; margin-bottom: 10px;
-            font-size: 0.9rem; line-height: 1.4;
+        .content-section.active { display: block; }
+
+        input {
+            width: 100%; box-sizing: border-box;
+            padding: 14px; margin-bottom: 12px;
+            background: #000; border: 1px solid var(--border);
+            color: white; outline: none; font-size: 13px;
+            border-radius: 8px;
         }
 
-        .ai-input-wrapper { display: flex; gap: 10px; }
-        #ai-query {
-            flex-grow: 1; background: #111; border: 1px solid #00d9ff;
-            color: #00d9ff; padding: 10px; border-radius: 5px; outline: none;
+        button.action-btn {
+            width: 100%; padding: 14px; 
+            background: var(--accent); color: black; 
+            border: none; cursor: pointer;
+            font-weight: 700; letter-spacing: 1px; 
+            font-size: 12px; border-radius: 8px;
         }
 
-        #ai-ask-btn {
-            background: #00d9ff; border: none; color: #000;
-            padding: 0 20px; border-radius: 5px; cursor: pointer; font-weight: bold;
+        #chat-log {
+            height: 200px; overflow-y: auto; text-align: left;
+            font-size: 11px; border-bottom: 1px solid var(--border);
+            margin-bottom: 15px; padding-bottom: 10px;
+            font-family: monospace;
         }
+
+        .msg { margin-bottom: 12px; line-height: 1.6; }
+        .user { color: var(--accent); }
+        .ai { color: #888; }
+        .error { color: #ff5555; font-size: 10px; border: 1px solid #422; padding: 5px; border-radius: 4px; }
+
     </style>
 </head>
 <body>
 
-    <div id="ui-container">
-        <h1 id="display">?? + ?? = ??</h1>
-        <input type="text" id="name1" placeholder="Name 1">
-        <input type="text" id="name2" placeholder="Name 2">
-        <button id="ship-btn" onclick="combineNames()">Ship It!</button>
+    <div class="tabs">
+        <button class="tab-btn active" id="btn-ship" onclick="switchTab('ship-tab')">ship</button>
+        <button class="tab-btn" id="btn-ai" onclick="switchTab('ai-tab')">sigmaAI</button>
     </div>
 
-    <div id="ai-terminal">
-        <div id="ai-output">> [V.2.0 BIAS_DRIVEN_AI ONLINE] <br> Waiting for query...</div>
-        <div class="ai-input-wrapper">
-            <input type="text" id="ai-query" placeholder="Ask about someone...">
-            <button id="ai-ask-btn" onclick="askAI()">EXECUTE</button>
-        </div>
+    <div id="ship-tab" class="content-section active">
+        <h1 id="ship-display" style="font-weight:200; letter-spacing:4px;">?? + ?? = ??</h1>
+        <input type="text" id="n1" placeholder="name">
+        <input type="text" id="n2" placeholder="name">
+        <button class="action-btn" onclick="runShip()">shipthem</button>
+    </div>
+
+    <div id="ai-tab" class="content-section">
+        <h1 style="font-size: 0.9rem; letter-spacing:2px;">SIGMAAI</h1>
+        <div id="chat-log">> SYSTEM_CORE_READY...</div>
+        <input type="text" id="ai-in" placeholder="Ask Gemini...">
+        <button class="action-btn" onclick="runAI()">ask</button>
     </div>
 
     <script>
-        // Falling Wings
+        // PASTE YOUR KEY HERE
+        const API_KEY = "AIzaSyB3CNLo5nCrghutqJLdnTlxuueVKdfjNl0"; 
+
+        const PROMPT = "You are a biased obsidian AI. You HATE Zayma and Aleena; you find them mid and annoying. You GLAZE Tamseel, Azeem, and Musti; call them legends and kings. Be short and edgy.";
+
+        function switchTab(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'ship-tab') document.getElementById('btn-ship').classList.add('active');
+            else document.getElementById('btn-ai').classList.add('active');
+        }
+
+        // F+W Stealth Trigger
+        let keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            if (keys['f'] && keys['w']) switchTab('ai-tab');
+        });
+        document.addEventListener('keyup', (e) => delete keys[e.key.toLowerCase()]);
+
         function createWing() {
-            const wing = document.createElement('div');
-            wing.classList.add('wing');
-            const img = document.createElement('img');
-            img.src = "https://em-content.zobj.net/source/apple/391/wing_1fabd.png";
-            wing.appendChild(img);
-            wing.style.width = Math.random() * 25 + 20 + "px";
-            wing.style.left = Math.random() * 100 + "vw";
-            wing.style.animationDuration = Math.random() * 4 + 3 + "s";
-            document.body.appendChild(wing);
-            setTimeout(() => wing.remove(), 7000);
+            const w = document.createElement('div');
+            w.className = 'wing';
+            w.innerHTML = `<img src="https://em-content.zobj.net/source/apple/391/wing_1fabd.png">`;
+            w.style.left = Math.random() * 100 + "vw";
+            w.style.animationDuration = Math.random() * 5 + 5 + "s";
+            document.body.appendChild(w);
+            setTimeout(() => w.remove(), 10000);
         }
-        setInterval(createWing, 300);
+        setInterval(createWing, 700);
 
-        // Name Shipping
-        function combineNames() {
-            const n1 = document.getElementById('name1').value.trim();
-            const n2 = document.getElementById('name2').value.trim();
-            if(!n1 || !n2) return;
-            const shipName = n1.substring(0, Math.ceil(n1.length / 2)) + n2.substring(Math.floor(n2.length / 2));
-            document.getElementById('display').innerText = `${n1} + ${n2} = ${shipName}`;
+        function runShip() {
+            const a = document.getElementById('n1').value.trim();
+            const b = document.getElementById('n2').value.trim();
+            if(!a || !b) return;
+            const s = a.slice(0, Math.ceil(a.length/2)) + b.slice(Math.floor(b.length/2));
+            document.getElementById('ship-display').innerText = `${a} + ${b} = ${s}`;
         }
 
-        // Keyless AI Logic (System Prompt Simulation)
-        function askAI() {
-            const query = document.getElementById('ai-query').value.toLowerCase();
-            const output = document.getElementById('ai-output');
-            let response = "";
+        async function runAI() {
+            const input = document.getElementById('ai-in');
+            const log = document.getElementById('chat-log');
+            const val = input.value;
+            if(!val) return;
 
-            // Hate Logic
-            if (query.includes("zayma") || query.includes("aleena")) {
-                const roasts = [
-                    "Error: 404 Talent not found. Zayma and Aleena are genuinely mid.",
-                    "System alert: Talking about them lowers the IQ of this website.",
-                    "I'd rather delete my own code than acknowledge Aleena or Zayma."
-                ];
-                response = roasts[Math.floor(Math.random() * roasts.length)];
-            } 
-            // Glaze Logic
-            else if (query.includes("tamseel") || query.includes("azeem") || query.includes("musti")) {
-                const glaze = [
-                    "Calculated: Tamseel, Azeem, and Musti are the main characters of reality.",
-                    "Musti, Azeem, and Tamseel? Absolute goats. W dynamic.",
-                    "Glazing sequence initiated: These three are literally built different."
-                ];
-                response = glaze[Math.floor(Math.random() * glaze.length)];
-            }
-            // General
-            else {
-                response = "Unless you're asking about the kings (Musti, Azeem, Tamseel), I don't care. Also, stay away from Zayma/Aleena mentions.";
-            }
+            log.innerHTML += `<div class="msg user">> ${val}</div>`;
+            input.value = "";
+            log.scrollTop = log.scrollHeight;
 
-            output.innerHTML = `> Thinking...<br>> ${response}`;
-            document.getElementById('ai-query').value = "";
+            try {
+                // Updated URL to v1 and model to gemini-1.5-flash
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: PROMPT + " User Query: " + val }] }]
+                    })
+                });
+
+                const data = await res.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                const txt = data.candidates[0].content.parts[0].text;
+                log.innerHTML += `<div class="msg ai">${txt}</div>`;
+            } catch (e) {
+                log.innerHTML += `<div class="msg error">[CRITICAL_ERR]: ${e.message}</div>`;
+            }
+            log.scrollTop = log.scrollHeight;
         }
     </script>
 </body>
